@@ -8,29 +8,49 @@
 const WIDTH = 7;
 const HEIGHT = 6;
 
-let currPlayer = 1; // active player: 1 or 2
+//let currPlayer = 1; // active player: 1 or 2
 // let board = []; // array of rows, each row is array of cells  (board[y][x])
 
-/** makeBoard: create in-JS board structure:
- *   board = array of rows, each row is array of cells  (board[y][x])
- */
+/* add description */
+class Player {
+  constructor(color, num) {
+    this.color = color;
+    this.num = num;
+  }
+}
+
+
+
+/*  */ 
 class Game {
-  constructor(width=WIDTH,height=HEIGHT, board=[]){
-    this.width=width;
-    this.height=height;
-    this.board=board;
+  constructor(width = WIDTH, height = HEIGHT, board = []) {
+    this.width = width;
+    this.height = height;
+    this.board = board;
     this.handleClick = this.handleClick.bind(this);
     this.getById = document.getElementById.bind(document);
+    // create start button
     const startButton = document.getElementById('start');
     startButton.addEventListener('click', this.startGame.bind(this));
-  }
 
+  }
+  /* make two players and assign them*/
+  makePlayers() {
+    let player1Color = this.getById("player1").value || 'red';
+    let player2Color = this.getById("player2").value || 'blue';
+    //make player 1 
+    this.player1 =new Player(player1Color,1);
+    this.player2 =new Player(player2Color,2);
+    this.currPlayer = this.player1;
+  }
   /* start a game */
-  startGame(){
+  startGame() {
     this.board = []; //empty the board
     this.getById('board').innerHTML = ""; //refresh HTML board
+    this.makePlayers();
     this.makeBoard(); //make a new board
-    this.makeHtmlBoard(); 
+    this.makeHtmlBoard();
+
   }
 
   /** makeBoard: create in-JS board structure:
@@ -86,7 +106,9 @@ class Game {
   placeInTable(y, x) {
     const piece = document.createElement('div');
     piece.classList.add('piece');
-    piece.classList.add(`p${currPlayer}`);
+    piece.classList.add(`p${this.currPlayer.num}`);
+    piece.style.backgroundColor = this.currPlayer.color;
+
     piece.style.top = -50 * (y + 2);
 
     const spot = this.getById(`${y}-${x}`);
@@ -112,30 +134,30 @@ class Game {
     }
 
     // place piece in board and add to HTML table
-    this.board[y][x] = currPlayer;
+    this.board[y][x] = this.currPlayer.num;
     this.placeInTable(y, x);
-    
+
     // check for win
     if (this.checkForWin()) {
-      return this.endGame(`Player ${currPlayer} won!`);
+      return this.endGame(`Player ${this.currPlayer.num} won!`);
     }
-    
+
     // check for tie
     if (this.board.every(row => row.every(cell => cell))) {
       return this.endGame('Tie!');
     }
-      
+
     // switch players
-    currPlayer = currPlayer === 1 ? 2 : 1;
+    this.currPlayer = this.currPlayer.num === 1 ? this.player2 : this.player1;
   }
 
-  
+
   /** checkForWin: check board cell-by-cell for "does a win start here?" */
   checkForWin() {
-    
+
     // Check four cells to see if they're all color of current player
-      //- cells: list of four (y, x) cells
-      //- returns true if all are legal coordinates & all match currPlayer
+    //- cells: list of four (y, x) cells
+    //- returns true if all are legal coordinates & all match currPlayer
     const _win = (cells) => {
       return cells.every(
         ([y, x]) =>
@@ -143,7 +165,7 @@ class Game {
           y < this.height &&
           x >= 0 &&
           x < this.width &&
-          this.board[y][x] === currPlayer
+          this.board[y][x] === this.currPlayer.num
       );
     }
 
@@ -166,8 +188,8 @@ class Game {
 
 }
 
-
-new Game(6,7);
+//encapsulation 
+new Game(6, 7);
 
 // function makeBoard() {
 //   for (let y = 0; y < HEIGHT; y++) {
@@ -251,17 +273,17 @@ new Game(6,7);
 //   // place piece in board and add to HTML table
 //   board[y][x] = currPlayer;
 //   placeInTable(y, x);
-  
+
 //   // check for win
 //   if (checkForWin()) {
 //     return endGame(`Player ${currPlayer} won!`);
 //   }
-  
+
 //   // check for tie
 //   if (board.every(row => row.every(cell => cell))) {
 //     return endGame('Tie!');
 //   }
-    
+
 //   // switch players
 //   currPlayer = currPlayer === 1 ? 2 : 1;
 // }
